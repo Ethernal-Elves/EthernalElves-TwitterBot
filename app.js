@@ -21,7 +21,7 @@ function formatAndSendTweet(event) {
     const formattedEthPrice = formattedUnits * tokenEthPrice;
     const formattedUsdPrice = formattedUnits * tokenUsdPrice;
 
-    const tweetText = `${assetName} bought for ${formattedEthPrice}${ethers.constants.EtherSymbol} ($${Number(formattedUsdPrice).toFixed(2)}) #NFT ${openseaLink}`;
+    const tweetText = `${assetName} bought for ${formattedEthPrice}${ethers.constants.EtherSymbol} ($${Number(formattedUsdPrice).toFixed(2)}) @ethernalElves ${openseaLink}`;
 
     console.log(tweetText);
 
@@ -76,3 +76,95 @@ setInterval(() => {
         console.error(error);
     });
 }, 60000);
+
+setInterval(() => {
+    const lastSaleTime = cache.get('lastSaleTime1', null) || moment().startOf('minute').subtract(59, "seconds").unix();
+
+    console.log(`Last sale (in seconds since Unix epoch): ${cache.get('lastSaleTime1', null)}`);
+
+    axios.get('https://api.opensea.io/api/v1/events', {
+        headers: {
+            'X-API-KEY': process.env.X_API_KEY
+        },
+        params: {
+            collection_slug: process.env.OPENSEA_COLLECTION_SLUG_ART,
+            event_type: 'successful',
+            occurred_after: lastSaleTime,
+            only_opensea: 'false'
+        }
+    }).then((response) => {
+        const events = _.get(response, ['data', 'asset_events']);
+
+        const sortedEvents = _.sortBy(events, function(event) {
+            const created = _.get(event, 'created_date');
+
+            return new Date(created);
+        })
+
+        console.log(`${events.length} sales since the last one...`);
+
+        _.each(sortedEvents, (event) => {
+            const created = _.get(event, 'created_date');
+
+            cache.set('lastSaleTime1', moment(created).unix());
+
+            return formatAndSendTweet(event);
+        });
+    }).catch((error) => {
+        console.error(error);
+    });
+}, 60000);
+
+setInterval(() => {
+    const lastSaleTime = cache.get('lastSaleTime2', null) || moment().startOf('minute').subtract(59, "seconds").unix();
+
+    console.log(`Last sale (in seconds since Unix epoch): ${cache.get('lastSaleTime2', null)}`);
+
+    axios.get('https://api.opensea.io/api/v1/events', {
+        headers: {
+            'X-API-KEY': process.env.X_API_KEY
+        },
+        params: {
+            collection_slug: process.env.OPENSEA_COLLECTION_SLUG_ELD,
+            event_type: 'successful',
+            occurred_after: lastSaleTime,
+            only_opensea: 'false'
+        }
+    }).then((response) => {
+        const events = _.get(response, ['data', 'asset_events']);
+
+        const sortedEvents = _.sortBy(events, function(event) {
+            const created = _.get(event, 'created_date');
+
+            return new Date(created);
+        })
+
+        console.log(`${events.length} sales since the last one...`);
+
+        _.each(sortedEvents, (event) => {
+            const created = _.get(event, 'created_date');
+
+            cache.set('lastSaleTime2', moment(created).unix());
+
+            return formatAndSendTweet(event);
+        });
+    }).catch((error) => {
+        console.error(error);
+    });
+}, 60000);
+
+
+process.on('uncaughtException', (error, origin) => {
+    console.log('----- Uncaught exception -----')
+    console.log(error)
+    console.log('----- Exception origin -----')
+    console.log(origin)
+  })
+  
+  process.on('unhandledRejection', (reason, promise) => {
+    console.log('----- Unhandled Rejection at -----')
+    console.log(promise)
+    console.log('----- Reason -----')
+    console.log(reason)
+  })
+  
