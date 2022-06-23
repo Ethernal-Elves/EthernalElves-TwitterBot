@@ -70,7 +70,7 @@ setInterval(() => {
 
             cache.set('lastSaleTime', moment(created).unix());
 
-            return formatAndSendTweet(event);
+         return formatAndSendTweet(event);
         });
     }).catch((error) => {
         console.error(error);
@@ -97,7 +97,6 @@ setInterval(() => {
 
         const sortedEvents = _.sortBy(events, function(event) {
             const created = _.get(event, 'created_date');
-
             return new Date(created);
         })
 
@@ -107,7 +106,7 @@ setInterval(() => {
             const created = _.get(event, 'created_date');
 
             cache.set('lastSaleTime1', moment(created).unix());
-
+            
             return formatAndSendTweet(event);
         });
     }).catch((error) => {
@@ -146,7 +145,7 @@ setInterval(() => {
 
             cache.set('lastSaleTime2', moment(created).unix());
 
-            return formatAndSendTweet(event);
+           return formatAndSendTweet(event);
         });
     }).catch((error) => {
         console.error(error);
