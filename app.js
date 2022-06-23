@@ -114,6 +114,8 @@ setInterval(() => {
     });
 }, 60000);
 
+//DEPLPOYMENT
+
 setInterval(() => {
     const lastSaleTime = cache.get('lastSaleTime2', null) || moment().startOf('minute').subtract(59, "seconds").unix();
 
